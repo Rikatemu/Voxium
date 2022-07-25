@@ -1,3 +1,4 @@
+/*
 pub struct Biome {
     pub biome_name: String,
     pub solid_ground_height: i32,
@@ -15,3 +16,4 @@ pub struct Lode {
     pub threshold: f32,
     pub noise_offset: f32
 }
+*/

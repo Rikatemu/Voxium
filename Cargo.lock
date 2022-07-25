@@ -2793,6 +2793,7 @@ dependencies = [
  "bevy",
  "bevy_atmosphere",
  "bevy_flycam",
+ "rand",
  "ron",
 ]
 

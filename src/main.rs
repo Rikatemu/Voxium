@@ -6,7 +6,6 @@ mod world;
 
 fn main() {
     App::new()
-        .insert_resource(Msaa { samples: 4 })
         .insert_resource(bevy_atmosphere::AtmosphereMat::default())
         .add_plugins(DefaultPlugins)
         .add_plugin(LogDiagnosticsPlugin::default())
@@ -24,13 +23,6 @@ fn main() {
 fn setup(
     mut commands: Commands
 ) {
-    /*
-    commands.insert_resource(AmbientLight {
-        color: Color::WHITE,
-        brightness: 0.1,
-    });
-    */
-
     commands.insert_resource(DirectionalLight {
         shadows_enabled: true,
         ..Default::default()

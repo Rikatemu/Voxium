@@ -3,10 +3,14 @@ mod voxel_data;
 
 use bevy::prelude::*;
 use bevy::render::mesh::{self, PrimitiveTopology};
-
 use self::voxel_data::*;
 
 pub struct WorldGen;
+
+struct Voxel {
+    position: Vec3,
+    value: bool,
+}
 
 impl Plugin for WorldGen {
     fn build(&self, app: &mut App) {
@@ -23,21 +27,20 @@ fn gen_chunk(
     let mut triangles: Vec<u32> = Vec::new();
     let mut uvs: Vec<[f32; 2]> = Vec::new();
 
-    // TODO: refactor to use HashMap or something faster, using two separate arrays is trash
-    let mut vox_vecs: Vec<Vec3> = Vec::new();
-    let mut vox_bools: Vec<bool> = Vec::new();
+    let mut voxelmap: Vec<Voxel> = Vec::new();
 
     let mut vertex_index = 0;
 
-    populate_voxelmap(&mut vox_vecs, &mut vox_bools);
+    populate_voxelmap(&mut voxelmap);
+
     create_mesh_data(
-        &mut vox_vecs, 
-        &mut vox_bools,
+        &mut voxelmap,
         &mut vertices,
         &mut triangles,
         &mut uvs,
         &mut vertex_index
     );
+
     create_mesh(
         commands,
         meshes,
@@ -48,22 +51,18 @@ fn gen_chunk(
     );
 }
 
-fn populate_voxelmap(vox_vecs: &mut Vec<Vec3>, vox_bools: &mut Vec<bool>) {
+fn populate_voxelmap(voxelmap: &mut Vec<Voxel>) {
     for y in 0..CHUNK_HEIGHT {
         for x in 0..CHUNK_WIDTH {
             for z in 0..CHUNK_WIDTH {
-                let vect = Vec3::new(x as f32, y as f32, z as f32);
-
-                vox_vecs.push(vect);
-                vox_bools.push(true);
+                voxelmap.push(Voxel { position: Vec3::new(x as f32, y as f32, z as f32), value: true });
             }
         }
     }
 }
 
 fn create_mesh_data(
-    mut vox_vecs: &mut Vec<Vec3>, 
-    mut vox_bools: &mut Vec<bool>,
+    mut voxelmap: &mut Vec<Voxel>,
     mut vertices: &mut Vec<Vec3>,
     mut triangles: &mut Vec<u32>,
     mut uvs: &mut Vec<[f32; 2]>,
@@ -74,8 +73,7 @@ fn create_mesh_data(
             for z in 0..CHUNK_WIDTH {
                 add_voxel_data_to_chunk(
                     Vec3::new(x as f32, y as f32, z as f32),
-                    &mut vox_vecs, 
-                    &mut vox_bools,
+                    &mut voxelmap,
                     &mut vertices,
                     &mut triangles,
                     &mut uvs,
@@ -88,8 +86,7 @@ fn create_mesh_data(
 
 fn check_voxel(
     pos: Vec3,
-    vox_vecs: &mut Vec<Vec3>, 
-    vox_bools: &mut Vec<bool>,
+    voxelmap: &mut Vec<Voxel>,
 ) -> bool {
     let x: i32 = pos.x.round() as i32;
     let y: i32 = pos.y.round() as i32;
@@ -99,15 +96,18 @@ fn check_voxel(
         return false;
     }
 
-    let vox_vecs_pos: usize = vox_vecs.iter().position(|&x| x == pos).unwrap();
+    for v in voxelmap {
+        if v.position.x.round() as i32 == x && v.position.y.round() as i32 == y && v.position.z.round() as i32 == z {
+            return v.value;
+        }
+    }
 
-    return vox_bools[vox_vecs_pos];
+    return false;
 }
 
 fn add_voxel_data_to_chunk(
     pos: Vec3,
-    vox_vecs: &mut Vec<Vec3>, 
-    vox_bools: &mut Vec<bool>,
+    voxelmap: &mut Vec<Voxel>,
     vertices: &mut Vec<Vec3>,
     triangles: &mut Vec<u32>,
     uvs: &mut Vec<[f32; 2]>,
@@ -115,7 +115,7 @@ fn add_voxel_data_to_chunk(
 ) {
     for p in 0..6 {
         let mut v = FACE_CHECKS[p];
-        if !check_voxel(pos + Vec3::new(v[0], v[1], v[2]), vox_vecs, vox_bools) {
+        if !check_voxel(pos + Vec3::new(v[0], v[1], v[2]), voxelmap) {
             v = VERTICES[TRIANGLES[p][0]];
             vertices.push(pos + Vec3::new(v[0], v[1], v[2]));
 
