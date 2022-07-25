@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_flycam::PlayerPlugin;
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+//use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 
 mod world;
 
@@ -8,8 +8,8 @@ fn main() {
     App::new()
         .insert_resource(bevy_atmosphere::AtmosphereMat::default())
         .add_plugins(DefaultPlugins)
-        .add_plugin(LogDiagnosticsPlugin::default())
-        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        //.add_plugin(LogDiagnosticsPlugin::default())
+        //.add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(bevy_atmosphere::AtmospherePlugin {
             dynamic: false,  // Set to false since we aren't changing the sky's appearance
             sky_radius: 10.0,
@@ -26,11 +26,11 @@ fn setup(
     // ambient light
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 0.25,
+        brightness: 1.0,
     });
 
     // directional 'sun' light
-    const HALF_SIZE: f32 = 10.0;
+    const HALF_SIZE: f32 = 100.0;
     commands.spawn_bundle(DirectionalLightBundle {
         directional_light: DirectionalLight {
             // Configure the projection to better fit the scene
@@ -47,7 +47,7 @@ fn setup(
             ..default()
         },
         transform: Transform {
-            translation: Vec3::new(0.0, 2.0, 0.0),
+            translation: Vec3::new(0.0, 0.0, 0.0),
             rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_4),
             ..default()
         },

@@ -3,6 +3,7 @@ mod voxel_data;
 
 use bevy::prelude::*;
 use bevy::render::mesh::{self, PrimitiveTopology};
+use noise::{Perlin, NoiseFn};
 use self::voxel_data::*;
 
 pub struct WorldGen;
@@ -52,11 +53,14 @@ fn gen_chunk(
 }
 
 fn populate_voxelmap(voxelmap: &mut Vec<Voxel>) {
+    let perlin = Perlin::new();
+
     for y in 0..CHUNK_HEIGHT {
         for x in 0..CHUNK_WIDTH {
             for z in 0..CHUNK_WIDTH {
                 let mut val: bool = true;
-                if rand::random() {
+
+                if perlin.get([x as f64 / 10.0, y as f64 / 10.0, z as f64 / 10.0]) < 0.25 {
                     val = false;
                 }
 
@@ -93,16 +97,16 @@ fn check_voxel(
     pos: Vec3,
     voxelmap: &mut Vec<Voxel>,
 ) -> bool {
-    let x: i32 = pos.x.round() as i32;
-    let y: i32 = pos.y.round() as i32;
-    let z: i32 = pos.z.round() as i32;
+    let x: i32 = pos.x as i32;
+    let y: i32 = pos.y as i32;
+    let z: i32 = pos.z as i32;
 
     if x < 0 || x > CHUNK_WIDTH - 1 || y < 0 || y > CHUNK_HEIGHT - 1 || z < 0 || z > CHUNK_WIDTH - 1 {
         return false;
     }
 
     for v in voxelmap {
-        if v.position.x.round() as i32 == x && v.position.y.round() as i32 == y && v.position.z.round() as i32 == z {
+        if v.position.x as i32 == x && v.position.y as i32 == y && v.position.z as i32 == z {
             return v.value;
         }
     }
@@ -119,8 +123,9 @@ fn add_voxel_data_to_chunk(
     vertex_index: &mut i32,
 ) {
     for p in 0..6 {
-        let mut v = FACE_CHECKS[p];
-        if !check_voxel(pos + Vec3::new(v[0], v[1], v[2]), voxelmap) {
+        //let mut v: [f32; 3] = FACE_CHECKS[p];
+        if !check_voxel(pos, voxelmap) {
+            let mut v:[f32; 3];
             // Vertices
             v = VERTICES[TRIANGLES[p][0]];
             vertices.push(pos + Vec3::new(v[0], v[1], v[2]));
@@ -139,17 +144,18 @@ fn add_voxel_data_to_chunk(
             uvs.push(UVS[1]);
             uvs.push(UVS[2]);
             uvs.push(UVS[3]);
+
+            // Triangles
+            triangles.push(*vertex_index as u32);
+            triangles.push((*vertex_index + 1) as u32);
+            triangles.push((*vertex_index + 2) as u32);
+            triangles.push((*vertex_index + 2) as u32);
+            triangles.push((*vertex_index + 1) as u32);
+            triangles.push((*vertex_index + 3) as u32);
+
+            *vertex_index = vertex_index.clone() + 4;
         }
     }
-
-    // Triangles
-    triangles.push(*vertex_index as u32);
-    triangles.push((*vertex_index + 1) as u32);
-    triangles.push((*vertex_index + 2) as u32);
-    triangles.push((*vertex_index + 2) as u32);
-    triangles.push((*vertex_index + 1) as u32);
-    triangles.push((*vertex_index + 3) as u32);
-    *vertex_index = *vertex_index + 4;
 }
 
 fn create_mesh(

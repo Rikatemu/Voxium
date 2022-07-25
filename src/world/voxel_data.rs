@@ -1,5 +1,5 @@
 pub const CHUNK_WIDTH: i32 = 16;
-pub const CHUNK_HEIGHT: i32 = 16;
+pub const CHUNK_HEIGHT: i32 = 32;
 
 pub const VERTICES: [[f32; 3]; 8] = [
     [0.0, 0.0, 0.0],
@@ -12,11 +12,7 @@ pub const VERTICES: [[f32; 3]; 8] = [
     [0.0, 1.0, 1.0],
 ];
 
-pub const UVS: [[f32; 2]; 8] = [
-    [0.0, 0.0],
-    [0.0, 1.0],
-    [1.0, 0.0],
-    [1.0, 1.0],
+pub const UVS: [[f32; 2]; 4] = [
     [0.0, 0.0],
     [0.0, 1.0],
     [1.0, 0.0],
@@ -32,6 +28,7 @@ pub const TRIANGLES: [[usize; 4]; 6] = [
     [1, 2, 5, 6],
 ];
 
+// TODO: don't forget to implement this for better performance
 pub const FACE_CHECKS: [[f32; 3]; 6] = [
     [0.0, 0.0, -1.0],
     [0.0, 0.0, 1.0],
