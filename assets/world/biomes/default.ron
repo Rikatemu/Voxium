@@ -1,0 +1,6 @@
+Biome (
+    biome_name: "Default",
+    solid_ground_height: 64,
+    terrain_height: 256,
+    terrain_scale: 126,
+)
