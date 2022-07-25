@@ -55,7 +55,12 @@ fn populate_voxelmap(voxelmap: &mut Vec<Voxel>) {
     for y in 0..CHUNK_HEIGHT {
         for x in 0..CHUNK_WIDTH {
             for z in 0..CHUNK_WIDTH {
-                voxelmap.push(Voxel { position: Vec3::new(x as f32, y as f32, z as f32), value: true });
+                let mut val: bool = true;
+                if rand::random() {
+                    val = false;
+                }
+
+                voxelmap.push(Voxel { position: Vec3::new(x as f32, y as f32, z as f32), value: val });
             }
         }
     }
@@ -116,6 +121,7 @@ fn add_voxel_data_to_chunk(
     for p in 0..6 {
         let mut v = FACE_CHECKS[p];
         if !check_voxel(pos + Vec3::new(v[0], v[1], v[2]), voxelmap) {
+            // Vertices
             v = VERTICES[TRIANGLES[p][0]];
             vertices.push(pos + Vec3::new(v[0], v[1], v[2]));
 
@@ -127,19 +133,23 @@ fn add_voxel_data_to_chunk(
 
             v = VERTICES[TRIANGLES[p][3]];
             vertices.push(pos + Vec3::new(v[0], v[1], v[2]));
+
+            // UVs
             uvs.push(UVS[0]);
             uvs.push(UVS[1]);
             uvs.push(UVS[2]);
             uvs.push(UVS[3]);
-            triangles.push(*vertex_index as u32);
-            triangles.push((*vertex_index + 1) as u32);
-            triangles.push((*vertex_index + 2) as u32);
-            triangles.push((*vertex_index + 2) as u32);
-            triangles.push((*vertex_index + 1) as u32);
-            triangles.push((*vertex_index + 3) as u32);
-            *vertex_index = *vertex_index + 4;
         }
     }
+
+    // Triangles
+    triangles.push(*vertex_index as u32);
+    triangles.push((*vertex_index + 1) as u32);
+    triangles.push((*vertex_index + 2) as u32);
+    triangles.push((*vertex_index + 2) as u32);
+    triangles.push((*vertex_index + 1) as u32);
+    triangles.push((*vertex_index + 3) as u32);
+    *vertex_index = *vertex_index + 4;
 }
 
 fn create_mesh(
@@ -169,7 +179,9 @@ fn create_mesh(
     commands.spawn_bundle(PbrBundle {
         mesh: meshes.add(mesh),
         material: materials.add(StandardMaterial {
-            base_color: Color::hex("80f73b").unwrap(),
+            base_color: Color::hex("55bf0a").unwrap(),
+            metallic: 0.0,
+            perceptual_roughness: 1.0,
             ..Default::default()
         }),
         ..Default::default()
