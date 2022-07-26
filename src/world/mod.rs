@@ -53,21 +53,37 @@ fn gen_chunk(
 }
 
 fn populate_voxelmap(voxelmap: &mut Vec<Voxel>) {
-    let perlin = Perlin::new();
-
     for y in 0..CHUNK_HEIGHT {
         for x in 0..CHUNK_WIDTH {
             for z in 0..CHUNK_WIDTH {
-                let mut val: bool = true;
+                let mut val: bool = false;
 
-                if perlin.get([x as f64 / 10.0, y as f64 / 10.0, z as f64 / 10.0]) < 0.25 {
-                    val = false;
+                let ns: u32 = get_2d_perlin(Vec2::new(x as f32, z as f32), 0.0, 5.0);
+
+                if y > ns as i32 {
+                    val = true;
                 }
 
                 voxelmap.push(Voxel { position: Vec3::new(x as f32, y as f32, z as f32), value: val });
             }
         }
     }
+}
+
+fn get_2d_perlin(
+    pos: Vec2,
+    offset: f64,
+    scale: f64
+) -> u32 {
+    let perlin: Perlin = Perlin::new();
+
+    let mut ns: f64 = perlin.get([(pos.x as f64 + 0.1) / CHUNK_WIDTH as f64 * scale + offset, (pos.y as f64 + 0.1) / CHUNK_WIDTH as f64 * scale + offset]) * scale;
+
+    if ns < 0.0 {
+        ns = ns.abs();
+    }
+
+    return ns as u32;
 }
 
 fn create_mesh_data(
