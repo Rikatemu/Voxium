@@ -113,12 +113,12 @@ fn generate_face_data(
     uvs: &mut Vec<[f32; 2]>,
     vertex_index: &mut i32,
 ) {
-    if is_block_inside_chunk(position) {
+    if is_block_inside_chunk(position) && is_block_solid(voxelmap, position) {
         // For each of block's 6 faces
         for f in 0..6 {
             // Get neighbouring block's position
             let face_check: [f32; 3] = FACE_CHECKS[f];
-            let neighbour_position = position + Vec3::new(face_check[0], face_check[1], face_check[2]);
+            let neighbour_position: Vec3 = position + Vec3::new(face_check[0], face_check[1], face_check[2]);
 
             // Check neighbouring block, if it's solid, don't render this face
             if !is_block_solid(voxelmap, neighbour_position) {
@@ -213,11 +213,11 @@ fn render_chunk_mesh(
     commands.spawn_bundle(PbrBundle {
         mesh: meshes.add(mesh),
         material: materials.add(StandardMaterial {
-            base_color: Color::hex("55bf0a").unwrap(),
+            base_color: Color::rgb(0.5, 0.5, 0.5),
             metallic: 0.0,
-            perceptual_roughness: 1.0,
+            perceptual_roughness: 0.5,
             ..Default::default()
         }),
-        ..Default::default()
+        ..default()
     });
 }

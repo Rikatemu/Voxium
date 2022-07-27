@@ -1,4 +1,4 @@
-pub const CHUNK_WIDTH: i32 = 8;
+pub const CHUNK_WIDTH: i32 = 32;
 pub const CHUNK_HEIGHT: i32 = 8;
 
 pub const VERTICES: [[f32; 3]; 8] = [
