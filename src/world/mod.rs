@@ -64,6 +64,7 @@ fn generate_voxelmap(
                 // TODO: add procedural algorithms here
                 let mut sl: bool = true;
 
+                // Randomly place blocks
                 if rand::random() {
                     sl = false;
                 }
@@ -196,18 +197,15 @@ fn render_chunk_mesh(
     triangles: Vec<u32>,
     uvs: Vec<[f32; 2]>,
 ) {
-    let mut positions = Vec::new();
-
+    let mut positions: Vec<[f32; 3]> = Vec::new();
 
     for p in vertices {
         let pos: [f32;3] = [p.x, p.y, p.z];
         positions.push(pos);
     }
 
-    let indices = mesh::Indices::U32(triangles);
-
-    let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
-    mesh.set_indices(Some(indices));
+    let mut mesh: Mesh = Mesh::new(PrimitiveTopology::TriangleList);
+    mesh.set_indices(Some(mesh::Indices::U32(triangles)));
     mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, positions.clone());
     mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, positions);
     mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
