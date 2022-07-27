@@ -58,9 +58,9 @@ fn generate_chunk(
 fn generate_voxelmap(
     voxelmap: &mut Vec<Voxel>,
 ) {
-    for y in 0..=CHUNK_HEIGHT {
-        for x in 0..=CHUNK_WIDTH {
-            for z in 0..=CHUNK_WIDTH {
+    for y in 0..CHUNK_HEIGHT {
+        for x in 0..CHUNK_WIDTH {
+            for z in 0..CHUNK_WIDTH {
                 // TODO: add procedural algorithms here
                 let mut sl: bool = true;
 
@@ -88,9 +88,9 @@ fn generate_mesh_data(
     uvs: &mut Vec<[f32; 2]>,
     vertex_index: &mut i32,
 ) {
-    for y in 0..=CHUNK_HEIGHT {
-        for x in 0..=CHUNK_WIDTH {
-            for z in 0..=CHUNK_WIDTH {
+    for y in 0..CHUNK_HEIGHT {
+        for x in 0..CHUNK_WIDTH {
+            for z in 0..CHUNK_WIDTH {
                 // Generate face data for each block
                 generate_face_data(
                     Vec3::new(x as f32, y as f32, z as f32),
