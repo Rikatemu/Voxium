@@ -3,6 +3,7 @@ mod voxel_data;
 
 use bevy::prelude::*;
 use bevy::render::mesh::{self, PrimitiveTopology};
+use noise::{Perlin, NoiseFn};
 use self::voxel_data::*;
 
 pub struct WorldGen;
@@ -61,14 +62,24 @@ fn generate_voxelmap(
     for y in 0..CHUNK_HEIGHT {
         for x in 0..CHUNK_WIDTH {
             for z in 0..CHUNK_WIDTH {
-                // TODO: add procedural algorithms here
-                let mut sl: bool = true;
+                // TODO: add procedural algorithms like terrain and cave generation here
+                let mut sl: bool = false;
 
-                // Randomly place blocks
-                if rand::random() {
+                // Generate surface shape
+                let surface_noise: u32 = get_2d_perlin(Vec2::new(x as f32, z as f32), 0.0, 3.0);
+                
+                if y < surface_noise as i32 {
+                    sl = true;
+                }
+
+                // Generate cave shape
+                let cave_noise: f64 = get_3d_perlin(Vec3::new(x as f32, y as f32, z as f32), 0.0, 3.0);
+            
+                if cave_noise > 1.0 {
                     sl = false;
                 }
 
+                // Add voxel to voxelmap
                 let voxel = Voxel {
                     position: Vec3::new(x as f32, y as f32, z as f32),
                     solid: sl,
@@ -79,6 +90,42 @@ fn generate_voxelmap(
             }
         }
     }
+}
+
+fn get_2d_perlin(
+    pos: Vec2,
+    offset: f64,
+    scale: f64
+) -> u32 {
+    let perlin: Perlin = Perlin::new();
+
+    let mut ns: f64 = perlin.get([(pos.x as f64 + 0.1) / CHUNK_WIDTH as f64 * scale + offset, (pos.y as f64 + 0.1) / CHUNK_WIDTH as f64 * scale + offset]) * scale;
+
+    if ns < 0.0 {
+        ns = ns.abs();
+    }
+
+    return (ns + CHUNK_HEIGHT as f64 / 2.0) as u32;
+}
+
+fn get_3d_perlin(
+    pos: Vec3,
+    offset: f64,
+    scale: f64
+) -> f64 {
+    let perlin: Perlin = Perlin::new();
+
+    let mut ns: f64 = perlin.get([
+        (pos.x as f64 + 0.1) / CHUNK_WIDTH as f64 * scale + offset, 
+        (pos.y as f64 + 0.1) / CHUNK_HEIGHT as f64 * scale + offset,
+        (pos.z as f64 + 0.1) / CHUNK_WIDTH as f64 * scale + offset
+        ]) * scale;
+
+    if ns < 0.0 {
+        ns = ns.abs();
+    }
+
+    return ns;
 }
 
 fn generate_mesh_data(
@@ -213,7 +260,7 @@ fn render_chunk_mesh(
     commands.spawn_bundle(PbrBundle {
         mesh: meshes.add(mesh),
         material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.5, 0.5, 0.5),
+            base_color: Color::hex("32a852").unwrap(),
             metallic: 0.0,
             perceptual_roughness: 0.5,
             ..Default::default()
