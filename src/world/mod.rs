@@ -30,6 +30,7 @@ fn generate_chunk(
     commands: Commands,
     meshes: ResMut<Assets<Mesh>>,
     materials: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
 ) {
     // Chunk data
     let mut voxelmap: Vec<Voxel> = Vec::new();
@@ -50,6 +51,7 @@ fn generate_chunk(
         commands,
         meshes,
         materials,
+        asset_server,
         vertices,
         triangles,
         uvs
@@ -240,10 +242,15 @@ fn render_chunk_mesh(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
     vertices: Vec<Vec3>,
     triangles: Vec<u32>,
     uvs: Vec<[f32; 2]>,
 ) {
+    // Get textures
+    let texture_handle: Handle<Image> = asset_server.load("blocks/Blocks.png");
+
+    // Create mesh
     let mut positions: Vec<[f32; 3]> = Vec::new();
 
     for p in vertices {
@@ -260,9 +267,9 @@ fn render_chunk_mesh(
     commands.spawn_bundle(PbrBundle {
         mesh: meshes.add(mesh),
         material: materials.add(StandardMaterial {
-            base_color: Color::hex("32a852").unwrap(),
+            base_color_texture: Some(texture_handle),
             metallic: 0.0,
-            perceptual_roughness: 0.5,
+            perceptual_roughness: 1.0,
             ..Default::default()
         }),
         ..default()

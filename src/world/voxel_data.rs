@@ -1,5 +1,5 @@
-pub const CHUNK_WIDTH: i32 = 32;
-pub const CHUNK_HEIGHT: i32 = 16;
+pub const CHUNK_WIDTH: i32 = 16;
+pub const CHUNK_HEIGHT: i32 = 32;
 
 pub const VERTICES: [[f32; 3]; 8] = [
     [0.0, 0.0, 0.0], // 0
@@ -14,9 +14,9 @@ pub const VERTICES: [[f32; 3]; 8] = [
 
 pub const UVS: [[f32; 2]; 4] = [
     [0.0, 0.0], // 0
-    [0.0, 1.0], // 1
-    [1.0, 0.0], // 2
-    [1.0, 1.0], // 3
+    [0.0, 0.25], // 1
+    [0.25, 0.0], // 2
+    [0.25, 0.25], // 3
 ];
 
 pub const TRIANGLES: [[usize; 4]; 6] = [
